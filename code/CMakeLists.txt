@@ -1,6 +1,6 @@
 add_library( dsdl_mans SHARED
-	WindowMan.cpp 
-	WindowMan.hpp)
+	WindowMan.cpp InputMan.cpp
+	WindowMan.hpp InputMan.hpp)
 
 target_link_libraries( dsdl_mans ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 

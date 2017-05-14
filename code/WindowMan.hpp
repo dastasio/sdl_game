@@ -1,13 +1,9 @@
 #pragma once
+#include "InputMan.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 namespace den {
-    
-    enum WindowHints {
-        WIN_CENTERED = SDL_WINDOWPOS_CENTERED,
-        WIN_UNDEF = SDL_WINDOWPOS_UNDEFINED,
-    };
     
     class Window {
     public:
