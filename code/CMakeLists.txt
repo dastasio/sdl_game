@@ -3,8 +3,8 @@ add_library( dsdl_mans SHARED
 	WindowMan.hpp InputMan.hpp)
 
 add_library (dsdl_game SHARED
-	Block.cpp Player.cpp
-	Block.hpp Player.hpp)
+	Block.cpp
+	Block.hpp)
 
 target_link_libraries( dsdl_mans ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 
