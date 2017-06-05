@@ -2,6 +2,8 @@
 #include "TextureMan.hpp"
 #include "Grid.hpp"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 /* Singleton GetInstance
  * --------------------------------------
@@ -58,6 +60,9 @@ den::Window::Window(const char* title,
     /* loading textures */
     TextureMan* tman = new TextureMan(this->renderer);
     Block::texture = tman->Load("blocks.png");
+    
+    /* setting random seed for tetraminos generation */
+    srand(time(0));
 }
 
 /* Func: InitSDL

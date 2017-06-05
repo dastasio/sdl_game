@@ -12,7 +12,7 @@ void den::Block::Draw(SDL_Renderer *r, uint _x, uint _y) {
     SDL_RenderCopy(r, Block::texture, &this->orig, &dest);
 }
 
-den::Block::Block(uint type, uint block_size) {
+den::Block::Block(int type, uint block_size) {
     this->size = block_size;
     
     this->orig.w = TEXTURE_SIZE;

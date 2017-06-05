@@ -27,24 +27,18 @@ den::Grid::Grid(SDL_Renderer* r, int tilesize) {
 }
 
 void den::Grid::Update() {
-    static Piece* active_piece = nullptr;
-    static int count = 0;
-    
-    if (active_piece == nullptr) {
-        srand(SDL_GetTicks());
-        int type = rand() % 7;
-        active_piece = new Piece(type, this);
-    }
-    else {
-        if (count == 20)
-            if (!this->ApplyGravity(active_piece))
-                active_piece = nullptr;
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 20; ++j) {
+            int type = rand() % 7;
+            std::cout << type << std::endl;
+            this->grid[i][j] = new Block(type, tile_s);
+        }
     }
 }
 
 
 bool den::Grid::ApplyGravity(den::Piece *p) {
-    for (int tile_num = 0; tile_num < 4; ++tile_num) {
+    /*for (int tile_num = 0; tile_num < 4; ++tile_num) {
         SDL_Point* pos = &p->tiles[tile_num];
         
         if (CheckCollision(pos->x, pos->y + 1))
@@ -54,7 +48,7 @@ bool den::Grid::ApplyGravity(den::Piece *p) {
         SDL_Point* pos = &p->tiles[tile_num];
         this->SetBlock(pos->x, ++pos->y, this->grid[pos->x][pos->y - 1]);
         this->SetBlock(pos->x, pos->y - 1, nullptr);
-    }
+    } */
     return true;
 }
 

@@ -3,7 +3,7 @@
 #include "Piece.hpp"
 
 namespace den {
-    class Piece;
+    struct Piece;
     class Grid {
         friend class Piece;
     public:

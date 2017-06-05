@@ -68,15 +68,16 @@ struct den::Offset {
     }
 };
 
-den::Piece::Piece(int type, Grid* parent_grid) {
-    this->p_grid = parent_grid;
-    this->tiles = new SDL_Point[4];
+struct den::Piece {
+    uint i[4];
+    uint j[4];
     
-    Offset offsets(type);
-    
-    /* generating blocks */
-    for (int tile_num = 0; tile_num < 4; ++tile_num) {
-        std::cout << type << "." << tile_num << " = " << offsets[tile_num] << std::endl;
-        this->tiles[tile_num] = this->p_grid->NewBlock(offsets[tile_num], type);
+    Piece(int type) {
+        Offset offs(type);
+        
+        for (int k = 0; k < 4; ++k) {
+            this->i[k] = offs[k] % 10;
+            this->j[k] = (offs[k] - this->i[k]) / 10;
+        }
     }
-}
+};

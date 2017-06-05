@@ -5,7 +5,7 @@
 namespace den {
     class Block {
     public:
-        Block(uint type, uint block_size);
+        Block(int type, uint block_size);
         ~Block();
         
         void Draw(SDL_Renderer* r, uint _x, uint _y);
