@@ -3,8 +3,6 @@
 #include <cstdlib>
 #define N_ROWS 20
 #define N_COLS 10
-#define INIT_I 2
-#define INIT_J 0
 
 den::Grid::Grid(SDL_Renderer* r, int tilesize) {
     this->renderer = r;
@@ -27,34 +25,34 @@ den::Grid::Grid(SDL_Renderer* r, int tilesize) {
 }
 
 void den::Grid::Update() {
-    for (int i = 0; i < 10; ++i) {
+    /* for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 20; ++j) {
             int type = rand() % 7;
             std::cout << type << std::endl;
             this->grid[i][j] = new Block(type, tile_s);
         }
+    } */
+    static Piece* p = nullptr;
+    if (p == nullptr) {
+        std::cout << time(0) << std::endl;
+        p = new Piece(rand() % 7);
     }
+    for (int k = 0; k < 4; ++k) {
+        uint i, j;
+        p->GetPos(k, &i, &j);
+        this->NewBlock(p->type, i, j);
+    }
+    
 }
 
 
 bool den::Grid::ApplyGravity(den::Piece *p) {
-    /*for (int tile_num = 0; tile_num < 4; ++tile_num) {
-        SDL_Point* pos = &p->tiles[tile_num];
-        
-        if (CheckCollision(pos->x, pos->y + 1))
-            return false;
-    }
-    for (int tile_num = 0; tile_num < 4; ++tile_num) {
-        SDL_Point* pos = &p->tiles[tile_num];
-        this->SetBlock(pos->x, ++pos->y, this->grid[pos->x][pos->y - 1]);
-        this->SetBlock(pos->x, pos->y - 1, nullptr);
-    } */
+    // BEFORE MOVING, ALL CURRENT BLOCKS NEED TO BE SET TO NULLPTR
     return true;
 }
 
 bool den::Grid::CheckCollision(uint i, uint j) {
-    bool good_intervals = i <= N_COLS && j <= N_COLS;
-    if (this->grid[i][j] != nullptr && good_intervals)
+    if ( i <= N_COLS && j <= N_COLS && this->grid[i][j] != nullptr)
         return true;
     else
         return false;
@@ -70,28 +68,13 @@ void den::Grid::Draw() {
     }
 }
 
-SDL_Point den::Grid::NewBlock(int offset, int type) {
-    /* getting i_ and j_ offsets from given int offset */
-    int i_ = offset % 10;
-    int j_ = (offset - i_) / 10;
-    
-    if (this->grid[INIT_I + i_][INIT_J + j_] != nullptr) {
-#ifndef NDEBUG
-        std::cerr << "[GAME INFO] Tried to create block in occupied tile."
-        " GAME OVER!!" << std::endl;
-#endif
-        SDL_Point tbr;
-        tbr.x = -1;
-        tbr.y = -1;
-        return tbr;
+bool den::Grid::NewBlock(uint type, uint i, uint j) {
+    if (!CheckCollision(i, j)) {
+        this->grid[i][j] = new Block(type, tile_s);
+        return true;
     }
-    else {
-        SDL_Point pos;
-        pos.x = INIT_I + i_;
-        pos.y = INIT_J + j_;
-        this->grid[pos.x][pos.y] = new Block(type, tile_s);
-        return pos;
-    }
+    else
+        return false;
 }
 
 void den::Grid::SetBlock(uint i, uint j, den::Block *val) {

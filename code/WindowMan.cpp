@@ -63,6 +63,7 @@ den::Window::Window(const char* title,
     
     /* setting random seed for tetraminos generation */
     srand(time(0));
+    srand(rand());
 }
 
 /* Func: InitSDL
