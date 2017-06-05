@@ -1,25 +1,22 @@
 #include "Block.hpp"
+SDL_Texture* den::Block::texture;
 
-void den::Block::Draw(SDL_Renderer *r) {
+void den::Block::Draw(SDL_Renderer *r, uint _x, uint _y) {
     // Rectangle where block will be drawn
     SDL_Rect dest;
-    dest.x = this->center.x - (this->w / 2);
-    dest.y = this->center.y - (this->h / 2);
-    dest.w = this->w;
-    dest.h = this->h;
+    dest.x = _x;
+    dest.y = _y;
+    dest.w = this->size;
+    dest.h = this->size;
     
-    if (this->shown)
-        SDL_RenderCopy(r, this->texture, NULL, &dest);
+    SDL_RenderCopy(r, Block::texture, &this->orig, &dest);
 }
 
-den::Block::Block(SDL_Texture *tx, int x, int y, int w, int h) {
-    this->texture = tx;
+den::Block::Block(uint type, uint block_size) {
+    this->size = block_size;
     
-    this->w = w;
-    this->h = h;
-    
-    this->center.x = x;
-    this->center.y = y;
-    
-    this->shown = true;
+    this->orig.w = TEXTURE_SIZE;
+    this->orig.h = TEXTURE_SIZE;
+    this->orig.y = 0;
+    this->orig.x = type * TEXTURE_SIZE;
 }

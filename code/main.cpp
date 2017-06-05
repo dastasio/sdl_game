@@ -4,7 +4,7 @@
 using namespace den;
 
 int main() {
-    Window* w = new Window("hello");
+    Window* w = Window::Get("Tetris", 400, 800);
     
     w->StartLoop();
     

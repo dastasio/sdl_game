@@ -1,15 +1,32 @@
 #include "WindowMan.hpp"
+#include "TextureMan.hpp"
+#include "Grid.hpp"
 #include <iostream>
 
-
-/* Constructor: Window
+/* Singleton GetInstance
  * --------------------------------------
- * Constructs Window object and
- * creates window with given data
+ * Returns window instance
  *
  * title: title of the window to be created
  * w, h: width and height of the window (default: 1024x720)
  * x, y: x and y positions of the window (default: undefined)
+ */
+den::Window* den::Window::Get(const char* title,
+                 int w, int h,
+                 int x, int y) {
+    
+    static Window* instance = new Window(title, w, h, x, y);
+    return instance;
+}
+
+/* Private Constructor: Window
+ * --------------------------------------
+ * Constructs Window instance and
+ * creates window with given data
+ *
+ * title: title of the window to be created
+ * w, h: width and height of the window
+ * x, y: x and y positions of the window
  */
 den::Window::Window(const char* title,
                     int w, int h,
@@ -17,6 +34,7 @@ den::Window::Window(const char* title,
     
     if (!Window::sdl_init)  /* checking sdl init flag */
         Window::InitSDL();  /* if it hasn't been done, initalize SDL */
+    
     
     this->win = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN);
     if (this->win == nullptr) { /* if window creation wasn't possible, report error and exit */
@@ -35,6 +53,11 @@ den::Window::Window(const char* title,
     
     
     SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255); /* setting clear color to black */
+    
+    
+    /* loading textures */
+    TextureMan* tman = new TextureMan(this->renderer);
+    Block::texture = tman->Load("blocks.png");
 }
 
 /* Func: InitSDL
@@ -69,8 +92,14 @@ void den::Window::InitSDL() {
 void den::Window::Loop() {
     InputMan input = InputMan::instance();
     
+    
+    
     while( input.process()) {
         SDL_RenderClear(this->renderer);
+        
+        Grid* main_g = new Grid(this->renderer, 40);
+        main_g->Update();
+        main_g->Draw();
         
         SDL_RenderPresent(this->renderer);
     }
