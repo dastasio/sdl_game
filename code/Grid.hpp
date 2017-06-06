@@ -15,8 +15,8 @@ namespace den {
         
         SDL_Renderer* renderer;
         
-        bool CheckCollision(uint i, uint j);
-        bool ApplyGravity(Piece* p);
+        bool CheckCollision(uint i, uint j, Piece* p);
+        Piece* ApplyGravity(Piece* p);
         void SetBlock(uint i, uint j, Block* val);
         
         int tile_s;

@@ -63,6 +63,7 @@ den::Window::Window(const char* title,
     
     /* setting random seed for tetraminos generation */
     srand(time(0));
+    srand(rand() % rand());
     srand(rand());
 }
 
@@ -97,17 +98,18 @@ void den::Window::InitSDL() {
  */
 void den::Window::Loop() {
     InputMan input = InputMan::instance();
+    Grid* main_g = new Grid(this->renderer, 40);
     
     
     
     while( input.process()) {
         SDL_RenderClear(this->renderer);
         
-        Grid* main_g = new Grid(this->renderer, 40);
         main_g->Update();
         main_g->Draw();
         
         SDL_RenderPresent(this->renderer);
+        SDL_Delay(50);
     }
     
     delete this;

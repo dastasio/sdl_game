@@ -2,7 +2,7 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
-#define INIT_I 2
+#define INIT_I 3
 #define INIT_J 0
 
 struct den::Offset {
@@ -40,6 +40,7 @@ struct den::Offset {
                 break;
             case 6:
                 this->off[0] = 2;   this->off[1] = 10;  this->off[2] = 11;  this->off[3] = 12;
+                break;
             default:
 #ifndef NDEBUG
                 std::cout << "[ERROR] Requested inexisting type '" << type << "'" << std::endl;
@@ -62,4 +63,17 @@ den::Piece::Piece(uint t_) {
 void den::Piece::GetPos(uint n, uint *x, uint *y) {
     *x = this->i[n];
     *y = this->j[n];
+}
+
+void den::Piece::SetPos(uint n, uint i_, uint j_) {
+    this->i[n] = i_;
+    this->j[n] = j_;
+}
+
+bool den::Piece::IsPartOf(uint i_, uint j_) {
+    for (int k = 0; k < 4; ++k) {
+        if (this->i[k] == i_ && this->j[k] == j_)
+            return true;
+    }
+    return false;
 }
