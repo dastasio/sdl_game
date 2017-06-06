@@ -30,7 +30,8 @@ void den::Grid::Update() {
         p = new Piece(rand() % 7);
     }
     else {
-        p = ApplyGravity(p);
+        p->SortDown();
+        //p = ApplyGravity(p);
     }
     
     for (int k = 0; k < 4 && p != nullptr; ++k) {
@@ -44,8 +45,7 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
     for (int k = 0; k < 4; ++k) {
         uint i, j;
         p->GetPos(k, &i, &j);
-        if (!CheckCollision(i, ++j, p)) {
-            this->SetBlock(i, j, this->grid[i][j-1]);
+        if (!CheckCollision(i, ++j)) {
             this->SetBlock(i, j - 1, nullptr);
             
             p->SetPos(k, i, j);
@@ -61,15 +61,11 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
     return p;
 }
 
-bool den::Grid::CheckCollision(uint i, uint j, Piece* p) {
+bool den::Grid::CheckCollision(uint i, uint j) {
     if ( i >= N_COLS || j >= N_ROWS)
         return true;
-    else if ( this->grid[i][j] != nullptr) {
-        bool same_tetramino = false;
-        if (p != nullptr)
-            same_tetramino = p->IsPartOf(i, j);
-        return !same_tetramino;
-    }
+    else if ( this->grid[i][j] != nullptr)
+        return true;
     else
         return false;
 }
@@ -85,7 +81,7 @@ void den::Grid::Draw() {
 }
 
 bool den::Grid::NewBlock(uint type, uint i, uint j) {
-    if (!CheckCollision(i, j, nullptr)) {
+    if (!CheckCollision(i, j)) {
         this->grid[i][j] = new Block(type, tile_s);
         return true;
     }
@@ -94,7 +90,7 @@ bool den::Grid::NewBlock(uint type, uint i, uint j) {
 }
 
 void den::Grid::SetBlock(uint i, uint j, den::Block *val) {
-    if (!this->CheckCollision(i, j, nullptr)) {
+    if (!this->CheckCollision(i, j)) {
         this->grid[i][j] = val;
     }
     else {
