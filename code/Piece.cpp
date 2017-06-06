@@ -79,14 +79,9 @@ bool den::Piece::IsPartOf(uint i_, uint j_) {
 }
 
 void den::Piece::SortDown() {
-    
-    for (int k = 0; k < 4; ++k) {
-        std::cout << k << " = (" << this->i[k] << "; " << this->j[k]  << ")" << (k == 3 ? "\n":"") << std::endl;
-    }
-    
     for (int n = 0; n < 4; ++n) {
         for (int k = 3; k > (0 + n); --k) {
-            if (this->j[k] < this->j[k-1]) {
+            if (this->j[k] > this->j[k-1]) {
                 uint swp_i = this->i[k];
                 uint swp_j = this->j[k];
                 
@@ -96,9 +91,5 @@ void den::Piece::SortDown() {
                 this->j[k-1] = swp_j;
             }
         }
-    }
-    
-    for (int k = 0; k < 4; ++k) {
-        std::cout << k << " = (" << this->i[k] << "; " << this->j[k] << ")" << std::endl;
     }
 }

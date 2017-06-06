@@ -31,7 +31,7 @@ void den::Grid::Update() {
     }
     else {
         p->SortDown();
-        //p = ApplyGravity(p);
+        p = ApplyGravity(p);
     }
     
     for (int k = 0; k < 4 && p != nullptr; ++k) {
@@ -42,23 +42,29 @@ void den::Grid::Update() {
 
 // returns new (updated)tetramino
 den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
-    for (int k = 0; k < 4; ++k) {
-        uint i, j;
-        p->GetPos(k, &i, &j);
-        if (!CheckCollision(i, ++j)) {
-            this->SetBlock(i, j - 1, nullptr);
-            
-            p->SetPos(k, i, j);
-        }
-        else {
-            for (int k1 = 0; k1 < 4; ++k1) {
-                this->NewBlock(p->type, p->i[k], p->j[k]);
-            }
-            delete p;
-            return nullptr;
-        }
+    if (this->CheckDownCollision(p)) {
+        for (int k = 0; k < 4; ++k)
+            this->NewBlock(p->type, p->i[k], p->j[k]);
+        return nullptr;
+    }
+    else {
+        for (int k = 0; k < 4; p->j[k++]++);
     }
     return p;
+}
+
+// this only checks for collision, doesn't modify anything other than remove current pieces
+bool den::Grid::CheckDownCollision(den::Piece *p) {
+    // deleting blocks before checking for collision
+    for (int k = 0; k < 4; ++k) {
+        this->grid[p->i[k]][p->j[k]] = nullptr;
+    }
+    
+    for (int k = 0; k < 4; ++k) {
+        if (p->j[k] >= (N_ROWS - 1) || this->grid[p->i[k]][p->j[k] + 1] != nullptr)
+            return true;
+    }
+    return false;
 }
 
 bool den::Grid::CheckCollision(uint i, uint j) {
