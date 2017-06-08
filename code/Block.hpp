@@ -10,8 +10,6 @@ namespace den {
         
         void Draw(SDL_Renderer* r, uint _x, uint _y);
         
-        bool Collides();
-        
         static SDL_Texture* texture;
     private:
         uint size;

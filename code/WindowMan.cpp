@@ -100,18 +100,19 @@ void den::Window::Loop() {
     InputMan input = InputMan::instance();
     Grid* main_g = new Grid(this->renderer, 40);
     
+    bool run = true;
     
-    
-    while( input.process()) {
+    while( input.process() && run) {
         SDL_RenderClear(this->renderer);
         
-        main_g->Update();
+        run = main_g->Update();
         main_g->Draw();
         
         SDL_RenderPresent(this->renderer);
         SDL_Delay(50);
     }
     
+    delete main_g;
     delete this;
 }
 

@@ -9,7 +9,7 @@ namespace den {
         ~Grid();
         
         void Draw();
-        void Update();
+        bool Update();
     private:
         Block*** grid;
         
@@ -22,6 +22,6 @@ namespace den {
         
         int tile_s;
         
-        bool NewBlock(uint type, uint i, uint j);
+        void NewBlock(uint type, uint i, uint j);
     };
 }

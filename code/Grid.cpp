@@ -4,6 +4,11 @@
 #define N_ROWS 20
 #define N_COLS 10
 
+/* Constructor: Grid
+ * ----------------------------------------------
+ * r:        renderer used for rendering blocks
+ * tilesize: length of side of blocks (which are squares)
+ */
 den::Grid::Grid(SDL_Renderer* r, int tilesize) {
     this->renderer = r;
     this->tile_s = tilesize;
@@ -24,42 +29,102 @@ den::Grid::Grid(SDL_Renderer* r, int tilesize) {
     }
 }
 
-void den::Grid::Update() {
+
+/* Func: Update
+ * -------------------------------------------------
+ * Applies physics and game mechanics to grid
+ *
+ * returns: false if game is over; else true
+ */
+bool den::Grid::Update() {
+    /* static tetramino,
+     * all physics will be applied to it,
+     * until it reaches bottom and a new one is created
+     */
     static Piece* p = nullptr;
     if (p == nullptr) {
+        /* new (random) tetramino is created if active one becomes 'null' */
         p = new Piece(rand() % 7);
     }
     else {
+        /* if tetramino is not new, gravity is applied to it */
         p->SortDown();
         p = ApplyGravity(p);
     }
     
-    for (int k = 0; k < 4 && p != nullptr; ++k) {
-        this->NewBlock(p->type, p->i[k], p->j[k]);
+    /* if tetramino is null, then the tiles that made it up 
+     * are already in the grid and won't need to be recreated;
+     * else, all tiles of the current tetramino are created anew
+     */
+    if (p != nullptr) {
+        /* game is over if the place where the new tetramino is
+         * is already occupied
+         */
+        bool game_over = false;
+        for (int k = 0; k < 4 && !game_over; ++k) {
+            if (this->CheckCollision(p->i[k], p->j[k]))
+                game_over = true;
+        }
+        if (game_over) {
+            std::cout << "GAME OVER!" << std::endl;
+            return false;
+        }
+        else {
+            /* if game is not over, tiles are generated to be rendered */
+            for (int k = 0; k < 4 && p != nullptr; ++k) {
+                this->NewBlock(p->type, p->i[k], p->j[k]);
+            }
+        }
     }
     
+    /* returning true to indicate that game continues */
+    return true;
 }
 
-// returns new (updated)tetramino
+
+/* Func: ApplyGravity
+ * -------------------------------------------------------
+ * Checks if given tetramino has reached bottom
+ * and applies gravity accordingly
+ *
+ * p: active tetramino, to which gravity will be applied
+ *
+ * returns:
+ * - nullptr, if tetramino has reached bottom and can't fall anymore
+ * - pointer to updated tetramino, if gravity has been applied successfully
+ */
 den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
+    /* if there is no downward collision,
+     * the tetramino will be moved
+     */
     if (this->CheckDownCollision(p)) {
         for (int k = 0; k < 4; ++k)
             this->NewBlock(p->type, p->i[k], p->j[k]);
         return nullptr;
     }
     else {
+        /* incrementing 'j' value(row) for every tile */
         for (int k = 0; k < 4; p->j[k++]++);
     }
     return p;
 }
 
-// this only checks for collision, doesn't modify anything other than remove current pieces
+/* Func: CheckDownCollision
+ * -----------------------------------------------------
+ * Checks wether given tetramino can move downward
+ * after having deleted all its tiles from the grid
+ *
+ * p: tetramino to be checked
+ *
+ * returns: true if any of the blocks in the tetramino can't move down; else false
+ */
 bool den::Grid::CheckDownCollision(den::Piece *p) {
-    // deleting blocks before checking for collision
+    // current tiles are deleted before checking for collision
     for (int k = 0; k < 4; ++k) {
         this->grid[p->i[k]][p->j[k]] = nullptr;
     }
     
+    /* there is no collision only if all tiles can move down */
     for (int k = 0; k < 4; ++k) {
         if (p->j[k] >= (N_ROWS - 1) || this->grid[p->i[k]][p->j[k] + 1] != nullptr)
             return true;
@@ -67,6 +132,14 @@ bool den::Grid::CheckDownCollision(den::Piece *p) {
     return false;
 }
 
+
+/* Func: CheckCollision
+ * ------------------------------------------------------------
+ * Checks if indicated tile is occupied in the grid
+ *
+ * i, j: column and row of the tile to be checked
+ * returns: true if tile is occupied; else false
+ */
 bool den::Grid::CheckCollision(uint i, uint j) {
     if ( i >= N_COLS || j >= N_ROWS)
         return true;
@@ -76,6 +149,11 @@ bool den::Grid::CheckCollision(uint i, uint j) {
         return false;
 }
 
+
+/* Func: Draw
+ * -------------------------------------------------------
+ * goes through all blocks in the grid and calls their 'draw' function
+ */
 void den::Grid::Draw() {
     
     for (int i = 0; i < 10; ++i) {
@@ -86,15 +164,26 @@ void den::Grid::Draw() {
     }
 }
 
-bool den::Grid::NewBlock(uint type, uint i, uint j) {
-    if (!CheckCollision(i, j)) {
-        this->grid[i][j] = new Block(type, tile_s);
-        return true;
-    }
-    else
-        return false;
+
+/* Func: NewBlock
+ * ---------------------------------------------------------
+ * constructs new block in given position of the grid
+ *
+ * type: type of the tetramino the new block belongs to
+ * i, j: position of the new block
+ */
+void den::Grid::NewBlock(uint type, uint i, uint j) {
+    this->grid[i][j] = new Block(type, tile_s);
 }
 
+
+/* Func: SetBlock
+ * ---------------------------------------------------------
+ * sets given tile of the grid to an existing block
+ *
+ * i, j: position of the block in the grid
+ * val:  value the block has to take
+ */
 void den::Grid::SetBlock(uint i, uint j, den::Block *val) {
     if (!this->CheckCollision(i, j)) {
         this->grid[i][j] = val;
@@ -105,4 +194,16 @@ void den::Grid::SetBlock(uint i, uint j, den::Block *val) {
         j << ")" << std::endl;
 #endif
     }
+}
+
+
+/* Deconstructor: Grid
+ * -------------------------------------------------
+ * deletes all blocks and deletes grid
+ */
+den::Grid::~Grid() {
+    for (int i = 0; i < N_COLS; i++) {
+        delete this->grid[i];
+    }
+    delete this->grid;
 }
