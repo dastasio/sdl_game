@@ -102,14 +102,15 @@ void den::Window::Loop() {
     
     bool run = true;
     
-    while( input.process() && run) {
+    while( input.process(main_g) && run) {
+        double start = SDL_GetTicks();
         SDL_RenderClear(this->renderer);
         
         run = main_g->Update();
         main_g->Draw();
         
         SDL_RenderPresent(this->renderer);
-        SDL_Delay(50);
+        SDL_Delay(start + 250 - SDL_GetTicks());
     }
     
     delete main_g;

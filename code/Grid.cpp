@@ -47,8 +47,13 @@ bool den::Grid::Update() {
         p = new Piece(rand() % 7);
     }
     else {
+        /* applying horizontal movement */
+        while (this->move_queue.size() > 0) {
+            this->Move(p, move_queue.back());
+            this->move_queue.erase(this->move_queue.end());
+        }
+        
         /* if tetramino is not new, gravity is applied to it */
-        p->SortDown();
         p = ApplyGravity(p);
     }
     
@@ -109,6 +114,19 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
     return p;
 }
 
+
+void den::Grid::QueueMove(bool dir) {
+    this->move_queue.push_back(dir);
+}
+
+void den::Grid::Move(Piece* p, bool dir) {
+    if (!this->CheckHorCollision(p, dir)) {
+        int d = (dir * 2) - 1;
+        for (int k = 0; k < 4; k++)
+            p->i[k] += d;
+    }
+}
+
 /* Func: CheckDownCollision
  * -----------------------------------------------------
  * Checks wether given tetramino can move downward
@@ -119,6 +137,7 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
  * returns: true if any of the blocks in the tetramino can't move down; else false
  */
 bool den::Grid::CheckDownCollision(den::Piece *p) {
+    p->SortDown();
     // current tiles are deleted before checking for collision
     for (int k = 0; k < 4; ++k) {
         this->grid[p->i[k]][p->j[k]] = nullptr;
@@ -127,6 +146,24 @@ bool den::Grid::CheckDownCollision(den::Piece *p) {
     /* there is no collision only if all tiles can move down */
     for (int k = 0; k < 4; ++k) {
         if (p->j[k] >= (N_ROWS - 1) || this->grid[p->i[k]][p->j[k] + 1] != nullptr)
+            return true;
+    }
+    return false;
+}
+
+
+bool den::Grid::CheckHorCollision(den::Piece *p, bool dir) {
+    // sorting tiles in appropriate order
+    dir == DIR_RIGHT ? p->SortRight():p->SortLeft();
+    int d = (dir * 2) - 1;
+    
+    for (int k = 0; k < 4; ++k) {
+        this->grid[p->i[k]][p->j[k]] = nullptr;
+    }
+    
+    for (int k = 0; k < 4; ++k) {
+        // TODO: fix this cast to int
+        if (int(p->i[k]) + d < 0 || (int(p->i[k]) + d) >= N_COLS || this->grid[p->i[k] + d][p->j[k]] != nullptr)
             return true;
     }
     return false;

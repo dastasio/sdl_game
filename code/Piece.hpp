@@ -15,6 +15,9 @@ namespace den {
         void GetPos(uint n, uint *x, uint *y);
         void SetPos(uint n, uint i_, uint j_);
         bool IsPartOf(uint i_, uint j_);
+        
         void SortDown();
+        void SortRight();
+        void SortLeft();
     };
 }

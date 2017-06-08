@@ -1,4 +1,5 @@
 #pragma once
+#include "Grid.hpp"
 
 namespace den {
     
@@ -10,7 +11,7 @@ namespace den {
             return *inst;
         }
         
-        bool process();
+        bool process(Grid* g);
     private:
         InputMan() {}
     };
