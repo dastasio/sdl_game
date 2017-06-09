@@ -85,6 +85,9 @@ bool den::Grid::Update(bool vertical) {
             }
         }
     }
+    if (p == nullptr) {
+        this->CheckGoal();
+    }
     
     /* returning true to indicate that game continues */
     return true;
@@ -246,6 +249,37 @@ void den::Grid::setSpeed(bool quick) {
     ms_per_gravity = quick ? 17:900;
 }
 
+
+void den::Grid::CheckGoal() {
+    std::vector<int> complete_rows;
+    for (int row = 0; row < N_ROWS; ++row) {
+        int i = 0;
+        for (; i >= 0 && i < N_COLS; ++i) {
+            if (this->grid[i][row] == nullptr)
+                i = -2;
+        }
+        
+        if (i != -1)
+            complete_rows.push_back(row);
+    }
+    
+    for (int k = 0; k < complete_rows.size(); ++k)
+        this->DeleteRow(complete_rows[k]);
+    complete_rows.clear();
+}
+
+void den::Grid::DeleteRow(int row) {
+    for (int elem = 0; elem < N_COLS; ++elem)
+        this->grid[elem][row] = nullptr;
+    
+    for (int i = 0; i < N_COLS; ++i) {
+        for (int j = row; j > 0; --j) {
+            this->grid[i][j] = this->grid[i][j-1];
+        }
+        
+        this->grid[i][0] = nullptr;
+    }
+}
 
 /* Deconstructor: Grid
  * -------------------------------------------------

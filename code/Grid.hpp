@@ -13,6 +13,7 @@ namespace den {
         
         void Draw();
         bool Update(bool vertical);
+        void CheckGoal();
         
         void QueueMove(bool dir);
         
@@ -22,6 +23,8 @@ namespace den {
         Block*** grid;
         
         SDL_Renderer* renderer;
+        
+        void DeleteRow(int row);
         
         void Move(Piece* p, bool dir);
         bool CheckHorCollision(Piece* p, bool dir);
