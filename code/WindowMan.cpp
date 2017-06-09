@@ -102,15 +102,28 @@ void den::Window::Loop() {
     
     bool run = true;
     
+    double previous = SDL_GetTicks();
+    double lag = 0.0;
     while( input.process(main_g) && run) {
-        double start = SDL_GetTicks();
+        Uint32 speed = main_g->getMSperGravity();
+        
+        double current = SDL_GetTicks();
+        double elapsed = current - previous;
+        previous = current;
+        lag += elapsed;
         SDL_RenderClear(this->renderer);
         
-        run = main_g->Update();
+        run = main_g->Update(false);
+        while(lag >= speed) {
+            run = main_g->Update(true);
+            lag -= speed;
+            if (speed < 900)
+                lag = 0;
+        }
         main_g->Draw();
         
         SDL_RenderPresent(this->renderer);
-        SDL_Delay(start + 250 - SDL_GetTicks());
+        SDL_Delay(1000/60);
     }
     
     delete main_g;

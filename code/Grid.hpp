@@ -12,9 +12,12 @@ namespace den {
         ~Grid();
         
         void Draw();
-        bool Update();
+        bool Update(bool vertical);
         
         void QueueMove(bool dir);
+        
+        Uint32 getMSperGravity();
+        void setSpeed(bool quick);
     private:
         Block*** grid;
         
@@ -31,6 +34,7 @@ namespace den {
         void NewBlock(uint type, uint i, uint j);
         
         std::vector<bool> move_queue;
+        Uint32 ms_per_gravity;
         int tile_s;
     };
 }

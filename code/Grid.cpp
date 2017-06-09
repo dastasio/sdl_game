@@ -36,7 +36,7 @@ den::Grid::Grid(SDL_Renderer* r, int tilesize) {
  *
  * returns: false if game is over; else true
  */
-bool den::Grid::Update() {
+bool den::Grid::Update(bool vertical) {
     /* static tetramino,
      * all physics will be applied to it,
      * until it reaches bottom and a new one is created
@@ -48,13 +48,17 @@ bool den::Grid::Update() {
     }
     else {
         /* applying horizontal movement */
-        while (this->move_queue.size() > 0) {
-            this->Move(p, move_queue.back());
-            this->move_queue.erase(this->move_queue.end());
+        if (!vertical) {
+            while (this->move_queue.size() > 0) {
+                this->Move(p, move_queue.back());
+                this->move_queue.erase(this->move_queue.end());
+            }
+            CheckDownCollision(p);
         }
-        
-        /* if tetramino is not new, gravity is applied to it */
-        p = ApplyGravity(p);
+        else {
+            /* if tetramino is not new and enough time has passed, gravity is applied to it */
+            p = ApplyGravity(p);
+        }
     }
     
     /* if tetramino is null, then the tiles that made it up 
@@ -231,6 +235,15 @@ void den::Grid::SetBlock(uint i, uint j, den::Block *val) {
         j << ")" << std::endl;
 #endif
     }
+}
+
+
+Uint32 den::Grid::getMSperGravity() {
+    return this->ms_per_gravity;
+}
+
+void den::Grid::setSpeed(bool quick) {
+    ms_per_gravity = quick ? 17:900;
 }
 
 
