@@ -79,22 +79,42 @@ void den::Piece::moveJ(int qnt) {
     this->modJ += qnt;
 }
 
-void den::Piece::GetPos(uint n, uint *x, uint *y) {
+void den::Piece::GetPos(uint n, int *x, int *y) {
     *x = this->i[n] + this->modI;
     *y = this->j[n] + this->modJ;
+}
+
+
+void den::Piece::RotateClockwise() {
+    int pv_i, pv_j;
+    this->GetPos(this->pivot, &pv_i, &pv_j);
+    
+    for (int k = 0; k < 4; ++k) {
+        int swp_j = -this->j[k];
+        this->j[k] = this->i[k];
+        this->i[k] = swp_j;
+    }
+    
+    this->modI = pv_i - this->i[this->pivot];
+    this->modJ = pv_j - this->j[this->pivot];
 }
 
 void den::Piece::SortDown() {
     for (int n = 0; n < 4; ++n) {
         for (int k = 3; k > (0 + n); --k) {
             if (this->j[k] > this->j[k - 1]) {
-                uint swp_i = this->i[k];
-                uint swp_j = this->j[k];
+                int swp_i = this->i[k];
+                int swp_j = this->j[k];
                 
                 this->i[k] = this->i[k-1];
                 this->j[k] = this->j[k-1];
                 this->i[k-1] = swp_i;
                 this->j[k-1] = swp_j;
+                
+                if (k - 1 == this->pivot)
+                    this->pivot++;
+                else if (k == this->pivot)
+                    this->pivot--;
             }
         }
     }
@@ -104,13 +124,18 @@ void den::Piece::SortRight() {
     for (int n = 0; n < 4; ++n) {
         for (int k = 3; k > (0 + n); --k) {
             if( this->i[k] > this->i[k - 1]) {
-                uint swp_i = this->i[k];
-                uint swp_j = this->j[k];
+                int swp_i = this->i[k];
+                int swp_j = this->j[k];
                 
                 this->i[k] = this->i[k - 1];
                 this->j[k] = this->j[k - 1];
                 this->i[k - 1] = swp_i;
                 this->j[k - 1] = swp_j;
+                
+                if (k - 1 == this->pivot)
+                    this->pivot++;
+                else if (k == this->pivot)
+                    this->pivot--;
             }
         }
     }
@@ -120,13 +145,18 @@ void den::Piece::SortLeft() {
     for (int n = 0; n < 4; ++n) {
         for (int k = 3; k > (0 + n); --k) {
             if( this->i[k] < this->i[k - 1]) {
-                uint swp_i = this->i[k];
-                uint swp_j = this->j[k];
+                int swp_i = this->i[k];
+                int swp_j = this->j[k];
                 
                 this->i[k] = this->i[k - 1];
                 this->j[k] = this->j[k - 1];
                 this->i[k - 1] = swp_i;
                 this->j[k - 1] = swp_j;
+                
+                if (k - 1 == this->pivot)
+                    this->pivot++;
+                else if (k == this->pivot)
+                    this->pivot--;
             }
         }
     }

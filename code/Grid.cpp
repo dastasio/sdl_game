@@ -54,6 +54,16 @@ bool den::Grid::Update(bool vertical) {
                 this->Move(p, move_queue.back());
                 this->move_queue.erase(this->move_queue.end());
             }
+            while (this->rot_queue.size() > 0) {
+                /* deleting before rotation */
+                for (int k = 0; k < 4; ++k ) {
+                    int i, j;
+                    p->GetPos(k, &i, &j);
+                    this->grid[i][j] = nullptr;
+                }
+                p->RotateClockwise();
+                this->rot_queue.erase(this->rot_queue.end());
+            }
             CheckDownCollision(p);
         }
         else {
@@ -72,7 +82,7 @@ bool den::Grid::Update(bool vertical) {
          */
         bool game_over = false;
         for (int k = 0; k < 4 && !game_over; ++k) {
-            uint i, j;
+            int i, j;
             p->GetPos(k, &i, &j);
             if (this->CheckCollision(i, j))
                 game_over = true;
@@ -84,7 +94,7 @@ bool den::Grid::Update(bool vertical) {
         else {
             /* if game is not over, tiles are generated to be rendered */
             for (int k = 0; k < 4 && p != nullptr; ++k) {
-                uint i, j;
+                int i, j;
                 p->GetPos(k, &i, &j);
                 this->NewBlock(p->type, i, j);
             }
@@ -113,7 +123,7 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
      */
     if (this->CheckDownCollision(p)) {
         for (int k = 0; k < 4; ++k) {
-            uint i, j;
+            int i, j;
             p->GetPos(k, &i, &j);
             this->NewBlock(p->type, i, j);
         }
@@ -129,6 +139,10 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
 
 void den::Grid::QueueMove(bool dir) {
     this->move_queue.push_back(dir);
+}
+
+void den::Grid::QueueRotate() {
+    this->rot_queue.push_back(true);
 }
 
 void den::Grid::Move(Piece* p, bool dir) {
@@ -151,14 +165,14 @@ bool den::Grid::CheckDownCollision(den::Piece *p) {
     p->SortDown();
     // current tiles are deleted before checking for collision
     for (int k = 0; k < 4; ++k) {
-        uint i, j;
+        int i, j;
         p->GetPos(k, &i, &j);
         this->grid[i][j] = nullptr;
     }
     
     /* there is no collision only if all tiles can move down */
     for (int k = 0; k < 4; ++k) {
-        uint i, j;
+        int i, j;
         p->GetPos(k, &i, &j);
         if (j >= (N_ROWS - 1) || this->grid[i][j + 1] != nullptr)
             return true;
@@ -173,13 +187,13 @@ bool den::Grid::CheckHorCollision(den::Piece *p, bool dir) {
     int d = (dir * 2) - 1;
     
     for (int k = 0; k < 4; ++k) {
-        uint i, j;
+        int i, j;
         p->GetPos(k, &i, &j);
         this->grid[i][j] = nullptr;
     }
     
     for (int k = 0; k < 4; ++k) {
-        uint i, j;
+        int i, j;
         p->GetPos(k, &i, &j);
         // TODO: fix this cast to int
         if (int(i) + d < 0 || i + d >= N_COLS || this->grid[i + d][j] != nullptr)

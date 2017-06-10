@@ -16,6 +16,7 @@ namespace den {
         void CheckGoal();
         
         void QueueMove(bool dir);
+        void QueueRotate();
         
         Uint32 getMSperGravity();
         void setSpeed(bool quick);
@@ -37,6 +38,7 @@ namespace den {
         void NewBlock(uint type, uint i, uint j);
         
         std::vector<bool> move_queue;
+        std::vector<bool> rot_queue;
         Uint32 ms_per_gravity;
         int tile_s;
     };

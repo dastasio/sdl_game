@@ -27,6 +27,9 @@ bool den::InputMan::process(Grid* g) {
         if (state[SDL_SCANCODE_DOWN]) {
             g->setSpeed(true);
         }
+        if (state[SDL_SCANCODE_UP]) {
+            g->QueueRotate();
+        }
         lag -= 100;
     }
     return true;

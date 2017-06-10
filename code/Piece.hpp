@@ -7,18 +7,20 @@ namespace den {
     
     struct Offset;
     struct Piece {
-        uint j[4];
-        uint i[4];
-        uint modI, modJ;
+        int j[4];
+        int i[4];
+        int modI, modJ;
         uint type, pivot;
         
         
         
         Piece(uint t_);
-        void GetPos(uint n, uint *x, uint *y);
+        void GetPos(uint n, int *x, int *y);
         
         void moveI(int qnt);
         void moveJ(int qnt);
+        
+        void RotateClockwise();
         
         void SortDown();
         void SortRight();
