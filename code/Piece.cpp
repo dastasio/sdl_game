@@ -7,6 +7,7 @@
 
 struct den::Offset {
     int off[4];
+    int pv;
     
     int operator[](int n) {
         if (n >= 0 && n < 4)
@@ -21,25 +22,32 @@ struct den::Offset {
     Offset(int type) {
         switch (type) {
             case 0:
-                this->off[0] = 0;   this->off[1] = 1;   this->off[2] = 2;   this->off[3] = 3;
+                this->off[0] = 10;   this->off[1] = 11;   this->off[2] = 12;   this->off[3] = 13;
+                this->pv = 1;
                 break;
             case 1:
                 this->off[0] = 1;   this->off[1] = 10;  this->off[2] = 11;  this->off[3] = 12;
+                this->pv = 2;
                 break;
             case 2:
                 this->off[0] = 0;   this->off[1] = 1;   this->off[2] = 10;  this->off[3] = 11;
+                this->pv = 3;
                 break;
             case 3:
                 this->off[0] = 0;   this->off[1] = 1;   this->off[2] = 11;  this->off[3] = 12;
+                this->pv = 1;
                 break;
             case 4:
                 this->off[0] = 1;   this->off[1] = 2;   this->off[2] = 10;  this->off[3] = 11;
+                this->pv = 0;
                 break;
             case 5:
                 this->off[0] = 0;   this->off[1] = 10;  this->off[2] = 11;  this->off[3] = 12;
+                this->pv = 2;
                 break;
             case 6:
                 this->off[0] = 2;   this->off[1] = 10;  this->off[2] = 11;  this->off[3] = 12;
+                this->pv = 2;
                 break;
             default:
 #ifndef NDEBUG
@@ -53,29 +61,27 @@ struct den::Offset {
 den::Piece::Piece(uint t_) {
     this->type = t_;
     Offset offs(this->type);
-    
+    this->pivot = offs.pv;
     for (int k = 0; k < 4; ++k) {
-        this->i[k] = INIT_I + (offs[k] % 10);
-        this->j[k] = INIT_J + ((offs[k] - (offs[k] % 10)) / 10);
+        this->i[k] = (offs[k] % 10);
+        this->j[k] = ((offs[k] - (offs[k] % 10)) / 10);
     }
+    
+    this->modI = INIT_I;
+    this->modJ = INIT_J;
+}
+
+void den::Piece::moveI(int qnt) {
+    this->modI += qnt;
+}
+
+void den::Piece::moveJ(int qnt) {
+    this->modJ += qnt;
 }
 
 void den::Piece::GetPos(uint n, uint *x, uint *y) {
-    *x = this->i[n];
-    *y = this->j[n];
-}
-
-void den::Piece::SetPos(uint n, uint i_, uint j_) {
-    this->i[n] = i_;
-    this->j[n] = j_;
-}
-
-bool den::Piece::IsPartOf(uint i_, uint j_) {
-    for (int k = 0; k < 4; ++k) {
-        if (this->i[k] == i_ && this->j[k] == j_)
-            return true;
-    }
-    return false;
+    *x = this->i[n] + this->modI;
+    *y = this->j[n] + this->modJ;
 }
 
 void den::Piece::SortDown() {

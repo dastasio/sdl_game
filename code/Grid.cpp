@@ -43,6 +43,7 @@ bool den::Grid::Update(bool vertical) {
      */
     static Piece* p = nullptr;
     if (p == nullptr) {
+        this->CheckGoal();
         /* new (random) tetramino is created if active one becomes 'null' */
         p = new Piece(rand() % 7);
     }
@@ -71,7 +72,9 @@ bool den::Grid::Update(bool vertical) {
          */
         bool game_over = false;
         for (int k = 0; k < 4 && !game_over; ++k) {
-            if (this->CheckCollision(p->i[k], p->j[k]))
+            uint i, j;
+            p->GetPos(k, &i, &j);
+            if (this->CheckCollision(i, j))
                 game_over = true;
         }
         if (game_over) {
@@ -81,12 +84,11 @@ bool den::Grid::Update(bool vertical) {
         else {
             /* if game is not over, tiles are generated to be rendered */
             for (int k = 0; k < 4 && p != nullptr; ++k) {
-                this->NewBlock(p->type, p->i[k], p->j[k]);
+                uint i, j;
+                p->GetPos(k, &i, &j);
+                this->NewBlock(p->type, i, j);
             }
         }
-    }
-    if (p == nullptr) {
-        this->CheckGoal();
     }
     
     /* returning true to indicate that game continues */
@@ -110,13 +112,16 @@ den::Piece* den::Grid::ApplyGravity(den::Piece *p) {
      * the tetramino will be moved
      */
     if (this->CheckDownCollision(p)) {
-        for (int k = 0; k < 4; ++k)
-            this->NewBlock(p->type, p->i[k], p->j[k]);
+        for (int k = 0; k < 4; ++k) {
+            uint i, j;
+            p->GetPos(k, &i, &j);
+            this->NewBlock(p->type, i, j);
+        }
         return nullptr;
     }
     else {
-        /* incrementing 'j' value(row) for every tile */
-        for (int k = 0; k < 4; p->j[k++]++);
+        /* incrementing 'j' value(row) */
+        p->moveJ(1);
     }
     return p;
 }
@@ -129,8 +134,7 @@ void den::Grid::QueueMove(bool dir) {
 void den::Grid::Move(Piece* p, bool dir) {
     if (!this->CheckHorCollision(p, dir)) {
         int d = (dir * 2) - 1;
-        for (int k = 0; k < 4; k++)
-            p->i[k] += d;
+        p->moveI(d);
     }
 }
 
@@ -147,12 +151,16 @@ bool den::Grid::CheckDownCollision(den::Piece *p) {
     p->SortDown();
     // current tiles are deleted before checking for collision
     for (int k = 0; k < 4; ++k) {
-        this->grid[p->i[k]][p->j[k]] = nullptr;
+        uint i, j;
+        p->GetPos(k, &i, &j);
+        this->grid[i][j] = nullptr;
     }
     
     /* there is no collision only if all tiles can move down */
     for (int k = 0; k < 4; ++k) {
-        if (p->j[k] >= (N_ROWS - 1) || this->grid[p->i[k]][p->j[k] + 1] != nullptr)
+        uint i, j;
+        p->GetPos(k, &i, &j);
+        if (j >= (N_ROWS - 1) || this->grid[i][j + 1] != nullptr)
             return true;
     }
     return false;
@@ -165,12 +173,16 @@ bool den::Grid::CheckHorCollision(den::Piece *p, bool dir) {
     int d = (dir * 2) - 1;
     
     for (int k = 0; k < 4; ++k) {
-        this->grid[p->i[k]][p->j[k]] = nullptr;
+        uint i, j;
+        p->GetPos(k, &i, &j);
+        this->grid[i][j] = nullptr;
     }
     
     for (int k = 0; k < 4; ++k) {
+        uint i, j;
+        p->GetPos(k, &i, &j);
         // TODO: fix this cast to int
-        if (int(p->i[k]) + d < 0 || (int(p->i[k]) + d) >= N_COLS || this->grid[p->i[k] + d][p->j[k]] != nullptr)
+        if (int(i) + d < 0 || i + d >= N_COLS || this->grid[i + d][j] != nullptr)
             return true;
     }
     return false;
@@ -239,7 +251,6 @@ void den::Grid::SetBlock(uint i, uint j, den::Block *val) {
 #endif
     }
 }
-
 
 Uint32 den::Grid::getMSperGravity() {
     return this->ms_per_gravity;
