@@ -1,25 +1,22 @@
 #pragma once
 #include <SDL2/SDL.h>
+#define TEXTURE_SIZE 200
 
 namespace den {
     class Block {
     public:
-        Block(SDL_Texture *tx,
-              int x, int y,
-              int w, int h);
+        Block(int type, Uint32 block_size);
         ~Block();
         
-        void Draw(SDL_Renderer* r);
+        void Draw(SDL_Renderer* r, Uint32 _x, Uint32 _y);
         
-        virtual bool Collides() =0;
-        
+        static SDL_Texture* texture;
     private:
-        SDL_Texture* texture;
-        int w, h;
+        Uint32 size;
         
-        SDL_Point center;
-        
-        bool shown;
+        SDL_Rect orig;
     };
+    
+    
 }
 

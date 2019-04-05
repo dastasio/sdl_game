@@ -1,17 +1,22 @@
-add_library( dsdl_mans SHARED
-	WindowMan.cpp InputMan.cpp
-	WindowMan.hpp InputMan.hpp)
+if(SYSWINDOWS)
+	link_directories("${PROJECT_SOURCE_DIR}/win/SDL2/lib")
+endif()
 
-add_library (dsdl_game SHARED
-	Block.cpp
-	Block.hpp)
+add_library( dsdl_mans STATIC
+	WindowMan.cpp InputMan.cpp TextureMan.cpp
+	WindowMan.hpp InputMan.hpp TextureMan.hpp)
 
-target_link_libraries( dsdl_mans ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+add_library (dsdl_game STATIC
+	Block.cpp Grid.cpp Piece.cpp
+	Block.hpp Grid.hpp Piece.hpp)
+
+target_link_libraries (dsdl_mans dsdl_game ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+target_link_libraries (dsdl_game ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 
 # if sdl include directory includes "/SDL2", "SDL2" is removed
-if (${SDL2_INCLUDE_DIR} MATCHES "SDL2")
-	STRING(REGEX REPLACE "SDL2" "" SDL2_INCLUDE_DIR ${SDL2_INCLUDE_DIR})
-endif()
+#if (${SDL2_INCLUDE_DIR} MATCHES "SDL2")
+#	STRING(REGEX REPLACE "SDL2" "" SDL2_INCLUDE_DIR ${SDL2_INCLUDE_DIR})
+#endif()
 include_directories( ${SDL2_INCLUDE_DIR} ${mylib})
 
 

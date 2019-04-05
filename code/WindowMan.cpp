@@ -1,22 +1,42 @@
 #include "WindowMan.hpp"
+#include "TextureMan.hpp"
+#include "Grid.hpp"
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
-
-/* Constructor: Window
+/* Singleton GetInstance
  * --------------------------------------
- * Constructs Window object and
- * creates window with given data
+ * Returns window instance
  *
  * title: title of the window to be created
  * w, h: width and height of the window (default: 1024x720)
  * x, y: x and y positions of the window (default: undefined)
  */
+den::Window* den::Window::Get(const char* title,
+                 int w, int h,
+                 int x, int y) {
+    
+    static Window* instance = new Window(title, w, h, x, y);
+    return instance;
+}
+
+/* Private Constructor: Window
+ * --------------------------------------
+ * Constructs Window instance and
+ * creates window with given data
+ *
+ * title: title of the window to be created
+ * w, h: width and height of the window
+ * x, y: x and y positions of the window
+ */
 den::Window::Window(const char* title,
                     int w, int h,
                     int x, int y) {
     
-    if (!Window::sdl_init)  /* checking sdl init flag */
+    //if (!Window::sdl_init)  /* checking sdl init flag */
         Window::InitSDL();  /* if it hasn't been done, initalize SDL */
+    
     
     this->win = SDL_CreateWindow(title, x, y, w, h, SDL_WINDOW_SHOWN);
     if (this->win == nullptr) { /* if window creation wasn't possible, report error and exit */
@@ -35,6 +55,16 @@ den::Window::Window(const char* title,
     
     
     SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255); /* setting clear color to black */
+    
+    
+    /* loading textures */
+    TextureMan* tman = new TextureMan(this->renderer);
+    Block::texture = tman->Load("blocks.png");
+    
+    /* setting random seed for tetraminos generation */
+    srand(time(0));
+    srand(rand() % rand());
+    srand(rand());
 }
 
 /* Func: InitSDL
@@ -54,7 +84,7 @@ void den::Window::InitSDL() {
             exit(EXIT_FAILURE);
         }
         else {
-            Window::sdl_init = true; /* if init is successful, set flag to true */
+            //Window::sdl_init = true; /* if init is successful, set flag to true */
         }
     }
 }
@@ -68,13 +98,35 @@ void den::Window::InitSDL() {
  */
 void den::Window::Loop() {
     InputMan input = InputMan::instance();
+    Grid* main_g = new Grid(this->renderer, 40);
     
-    while( input.process()) {
+    bool run = true;
+    
+    double previous = SDL_GetTicks();
+    double lag = 0.0;
+    while( input.process(main_g) && run) {
+        Uint32 speed = main_g->getMSperGravity();
+        
+        double current = SDL_GetTicks();
+        double elapsed = current - previous;
+        previous = current;
+        lag += elapsed;
         SDL_RenderClear(this->renderer);
         
+        run = main_g->Update(false);
+        while(lag >= speed) {
+            run = main_g->Update(true);
+            lag -= speed;
+            if (speed < 900)
+                lag = 0;
+        }
+        main_g->Draw();
+        
         SDL_RenderPresent(this->renderer);
+        SDL_Delay(1000/60);
     }
     
+    delete main_g;
     delete this;
 }
 
